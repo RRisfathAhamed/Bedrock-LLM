@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat </title>
+</head>
+<body>
+    <h1>Chat with your PDFs</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="pdfFiles">Upload PDFs:</label>
+        <input type="file" id="pdfFiles" name="files" multiple>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="chatBox">
+        <input type="text" id="question" placeholder="Ask a question">
+        <button onclick="askQuestion()">Ask</button>
+    </div>
+    <div id="responseBox"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const files = document.getElementById('pdfFiles').files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            fetch('/upload-pdf', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        });
+
+        function askQuestion() {
+            const question = document.getElementById('question').value;
+            fetch('/ask-question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseBox').innerText = data.response;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>
